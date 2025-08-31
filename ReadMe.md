@@ -98,10 +98,11 @@ for r in results:
 
 #### 📂 回傳結果格式
 
-每篇文章的結果會是 JSON-like dict：
+`scrape_article` 回傳的結果會是 JSON-like dict：
 ```bash
 {
   "title": "Natural language processing",
+  "html": "...",
   "markdown": "...",
   "html_length": 15234,
   "markdown_length": 8921,
@@ -117,6 +118,17 @@ raw_markdown = results[0]["markdown"]
 clean_text = scraper.clean_content(raw_markdown)
 
 print(clean_text[:500])  # 顯示前 500 字
+```
+
+`clean_content` 回傳的結果會是 JSON-like string：
+```bash
+{
+    "title": "Natural language processing",
+    "content" {
+        "History": "...",
+        "See also": "...",
+    }
+}
 ```
 #### 🔒 OpenAI Client 建立與測試
 
