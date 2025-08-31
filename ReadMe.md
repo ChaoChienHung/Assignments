@@ -38,13 +38,24 @@ D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 ### 🚀 功能特色
 
 - 支援 **多網址非同步爬取**（`asyncio`）
-- **速率限制（Rate Limiting）**：避免過度請求
 - 回傳結構化資訊（標題、字數、連結數量、處理時間）
 - 內建 **Markdown → 純文字** 清理功能
 - 支援 **安全 API Key 輸入** 與 **OpenAI client 驗證**
 - 可擴充至 **自動 chunking / LLM-based extraction**
 
 ---
+
+## ✅ 待完成清單（Checklist）
+
+- [ ] HTML Parser：`mock_extract_from_html` 真實實作（BeautifulSoup）。
+- [ ] Asynchronous Multiple Scraping
+- [ ] **速率限制（Rate Limiting）**：避免過度請求
+- [ ] 清理函式：`clean_content`（移除非正文、過多空白、code fences 等）。  
+- [ ] `AIResearchAssistant`：錯誤處理與輔助方法完善（如 `remove_article`、`update_article`）。  
+- [ ] `compare_technologies`：API 與 Mock 版本（輸入/輸出 JSON 字串）。  
+- [ ] `trace_evolution`：API 與 Mock 版本（輸入/輸出 JSON 字串）。  
+- [ ] 測試：空資料、找不到標題、category 為空、JSON 格式錯誤等。  
+- [ ] 文件化：在 README 中加入使用示例與 CLI/Notebook 範例。  
 
 ### 📦 安裝需求
 
@@ -324,18 +335,6 @@ def trace_evolution(topic: str, articles_json: List[str]) -> str:
 - **找不到指定標題**：`get_article_by_title` 拋出 `ValueError`。  
 - **Category 為空**：允許 `None`；在檢索特定分類時顯示警告或跳過。  
 - **JSON 序列化/反序列化**：使用 `Article.model_validate_json()` 與 `model_dump_json()`。  
-
----
-
-## ✅ 待完成清單（Checklist）
-
-- [ ] HTML Parser：`mock_extract_from_html` 真實實作（BeautifulSoup）。  
-- [ ] 清理函式：`clean_content`（移除非正文、過多空白、code fences 等）。  
-- [ ] `AIResearchAssistant`：錯誤處理與輔助方法完善（如 `remove_article`、`update_article`）。  
-- [ ] `compare_technologies`：API 與 Mock 版本（輸入/輸出 JSON 字串）。  
-- [ ] `trace_evolution`：API 與 Mock 版本（輸入/輸出 JSON 字串）。  
-- [ ] 測試：空資料、找不到標題、category 為空、JSON 格式錯誤等。  
-- [ ] 文件化：在 README 中加入使用示例與 CLI/Notebook 範例。  
 
 ---
 
