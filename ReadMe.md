@@ -160,12 +160,12 @@ class WikipediaExtraction(BaseModel):
 
 ---
 
-## 🧠 AIResearchAssistant Class（狀態與行為）
+## 🧠 Agent Class（狀態與行為）
 
 ```python
 from typing import List, Dict, Optional
 
-class AIResearchAssistant:
+class Agent:
     def __init__(self, client=None, model: str = "gpt-4o-mini"):
         # 管理所有抽取出來的文章
         self.articles: List[WikipediaExtraction] = []
