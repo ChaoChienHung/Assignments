@@ -21,11 +21,11 @@ flowchart TD
 - **Raw Text Cleaning**：對 HTML/純文字進行初步清理（移除標籤、多餘空格等）。
 - **HTML Parser → JSON Format**：解析 HTML，將結構化資訊（標題、Header、段落等）轉成 JSON/dict。
 - **AIResearchAssistant** Class：核心管理模組，內含：
-- **Structured Extraction** (Pydantic Schema)：利用 Pydantic Schema 驗證與存放文章資料。
-- **Store Extracted Articles**：集中儲存所有已處理文章，便於後續操作。
-- **Function Calling Layer**：根據 LLM 輸入自動決定：
-    - **呼叫外部工具**（如 Gemini API）
-    - **或進入 Mock 模式**（以 JSON/dict 輸出並做簡單摘要）。
+    - **Structured Extraction** (Pydantic Schema)：利用 Pydantic Schema 驗證與存放文章資料。
+    - **Store Extracted Articles**：集中儲存所有已處理文章，便於後續操作。
+    - **Function Calling Layer**：根據 LLM 輸入自動決定：
+        - **呼叫外部工具**（如 Gemini API）
+        - **或進入 Mock 模式**（以 JSON/dict 輸出並做簡單摘要）。
 ---
 
 ## 📦 Data Contracts（Pydantic Schemas）
