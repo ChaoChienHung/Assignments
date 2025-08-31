@@ -27,7 +27,11 @@ D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
         - **呼叫外部工具**（如 Gemini API）
         - **或進入 Mock 模式**（以 JSON/dict 輸出並做簡單摘要）。
 
-### Schema
+---
+
+## 📦 Data Contracts（Pydantic Schemas）
+
+### Article Schema
 ```python
 from pydantic import BaseModel, Field
 from typing import List
@@ -40,29 +44,6 @@ class WikipediaExtraction(BaseModel):
     related_concepts: List[str] = Field(description="Related technology, see also")
     notable_methods: List[str] = Field(description="Notable methods, models, or techniques in this area")
 ```
----
-
-## 📦 Data Contracts（Pydantic Schemas）
-
-```python
-from typing import List, Optional
-from pydantic import BaseModel, Field
-
-class Article(BaseModel):
-    title: str = Field(description="Article title")
-    content: str = Field(description="Cleaned plain text or markdown")
-    category: Optional[str] = Field(default=None, description="Domain/topic label, optional")
-
-class ArticleComparison(BaseModel):
-    article_a_title: str
-    article_b_title: str
-    article_a_summary: str
-    article_b_summary: str
-    common_concepts: List[str] = []
-    unique_to_a: List[str] = []
-    unique_to_b: List[str] = []
-    notes: Optional[str] = None
-```
 > 註：實際欄位可依作業最終 schema（如 `summary`, `key_concepts`, `applications`）調整。
 
 ---
@@ -70,42 +51,110 @@ class ArticleComparison(BaseModel):
 ## 🧠 AIResearchAssistant Class（狀態與行為）
 
 ```python
-from typing import List, Dict
-from pydantic import ValidationError
+from typing import List, Dict, Optional
 
 class AIResearchAssistant:
-    def __init__(self):
-        # 以 Pydantic 物件管理（避免使用 global）
-        self.articles: List[Article] = []
+    def __init__(self, client=None, model: str = "gpt-4o-mini"):
+        # 管理所有抽取出來的文章
+        self.articles: List[WikipediaExtraction] = []
+        self.client = client
+        self.model = model
 
     # ---- Data In/Out ----
-    def add_article(self, article: Article) -> None:
+    def add_article(self, article: WikipediaExtraction) -> None:
         self.articles.append(article)
 
     def list_titles(self) -> List[str]:
         return [a.title for a in self.articles]
 
-    def get_article_by_title(self, title: str) -> Article:
+    def get_article_by_title(self, title: str) -> WikipediaExtraction:
         for a in self.articles:
             if a.title == title:
                 return a
         raise ValueError(f"Article not found: {title}")
 
-    def get_articles_by_category(self, category: str) -> List[Article]:
-        results = [a for a in self.articles if a.category == category]
+    def get_articles_by_category(self, category: str) -> List[WikipediaExtraction]:
+        # category 可能對應 related_concepts，需自定義
+        results = [a for a in self.articles if category in a.related_concepts]
         if not results:
             raise ValueError(f"No articles found for category: {category}")
         return results
 
-    # ---- Mocked Structured Extraction（無 API 時）----
-    def mock_extract_from_html(self, html: str) -> Dict:
-        """
-        使用 HTML parser（e.g., BeautifulSoup）擷取 <h1>/<h2>/<p>，
-        回傳 dict：{'title': str, 'content': str, 'category': Optional[str]}
-        """
-        # TODO: implement with BeautifulSoup
-        return {"title": "Extracted Title", "content": "Extracted Content", "category": None}
+    # ---- Extraction ----
+    def extract_structured_data(self, content: str) -> WikipediaExtraction:
+        """Use OpenAI structured output to extract data, fallback to mock if no API."""
+        if not self.client:
+            print("⚠️ Demo mode: Mock extraction.")
+            return self.create_mock_wiki_extraction()
+
+        schema = {
+            "name": "wiki_extraction",
+            "schema": WikipediaExtraction.model_json_schema(),
+            "strict": False
+        }
+
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system",
+                     "content": "Please extract and structure the article strictly according to the schema."},
+                    {"role": "user",
+                     "content": f"Analyze the article: {content}"}
+                ],
+                response_format={"type": "json_schema", "json_schema": schema}
+            )
+
+            wiki_extraction = WikipediaExtraction.model_validate_json(
+                response.choices[0].message.content
+            )
+            print(f"✅ Extracted: {wiki_extraction.title}")
+            return wiki_extraction
+
+        except Exception as e:
+            print(f"❌ Extraction failed: {e}")
+            return self.create_mock_wiki_extraction()
+
+    def batch_extract(self, articles: List[Dict]) -> List[WikipediaExtraction]:
+        extracted = []
+        for article in articles:
+            extracted.append(self.extract_structured_data(article['markdown']))
+        return extracted
+
+    def create_mock_wiki_extraction(self) -> WikipediaExtraction:
+        return WikipediaExtraction(
+            title="Null",
+            description="Null",
+            advantages=[],
+            disadvantages=[],
+            related_concepts=[],
+            notable_methods=[]
+        )
 ```
+
+### Function Calling Layer (對外介面)
+```python
+def ask_ai(query: str, assistant: AIResearchAssistant):
+    """
+    Function Calling 層，AI Assistant 與外部對話的唯一入口。
+    - query: 使用者的任務 (ex: "compare_technologies: LLM, RNN")
+    - assistant: 已經擁有 structured articles 的 AIResearchAssistant
+    """
+    if query.startswith("compare_technologies"):
+        # Example: compare_technologies: LLM, RNN
+        techs = query.split(":")[1].split(",")
+        results = [assistant.get_article_by_title(t.strip()) for t in techs]
+        return results
+
+    elif query.startswith("trace_evolution"):
+        # Example: trace_evolution: Deep Learning
+        topic = query.split(":")[1].strip()
+        return assistant.get_articles_by_category(topic)
+
+    else:
+        raise ValueError(f"Unknown query: {query}")
+```
+
 **Error Handling**：  
 - 若 `articles` 為空或找不到標題 → `ValueError`。  
 - `category` 可為 `None`；使用時需做空值檢查。  
