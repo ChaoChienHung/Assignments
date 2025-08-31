@@ -59,8 +59,7 @@ D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 
 ### 📦 安裝需求
 
-#### 請先安裝必要套件：
-**Dependencies**:
+#### Dependencies
 * crawl4ai>=0.2.0
 * openai>=1.0.0
 * pydantic>=2.0.0
@@ -68,6 +67,8 @@ D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 * requests>=2.25.0
 * beautifulsoup4>=4.9.0
 
+**請先安裝必要套件：**
+  
 ```bash
 pip install crawl4ai ratelimit beautifulsoup4 markdown openai pandas requests
 ```
