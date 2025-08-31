@@ -9,8 +9,8 @@
 
 ```
 flowchart TD
-A[Raw Data (HTML/Plain Text)] --> B[Raw Text Cleaning]
-B --> C[HTML Parser → JSON Format]
+A[Raw Data (HTML/Plain Text)] -- Wikipedia Parser --> B[Raw Text Cleaning]
+B -- Wikipedia Parser clean_content --> C[HTML Parser → JSON Format]
 C --> D[AIResearchAssistant Class]
 D --> D1[Structured Extraction (Pydantic Schema)]
 D --> D2[Store Extracted Articles]
