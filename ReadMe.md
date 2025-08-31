@@ -12,11 +12,11 @@ flowchart TD
     A[Raw Data (HTML/Plain Text)] --> B[Raw Text Cleaning]
     B --> C[HTML Parser → JSON Format]
     C --> D[AIResearchAssistant Class]
-    D --> D1[Structured Extraction (Pydantic Schema)]
-    D --> D2[Store Extracted Articles]
-    D --> D3[Function Calling Layer]
-    D3 -->|compare_technologies() or trace_evolution()| E[External Tool / Gemini API]
-    D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
+        D --> D1[Structured Extraction (Pydantic Schema)]
+        D --> D2[Store Extracted Articles]
+        D --> D3[Function Calling Layer]
+            D3 -->|compare_technologies() or trace_evolution()| E[External Tool / Gemini API]
+            D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 ```
 - **Raw Text Cleaning**：對 HTML/純文字進行初步清理（移除標籤、多餘空格等）。
 - **HTML Parser → JSON Format**：解析 HTML，將結構化資訊（標題、Header、段落等）轉成 JSON/dict。
