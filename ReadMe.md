@@ -11,7 +11,7 @@
 flowchart TD
 A[URL] --> Wikipedia Parser --> B[Raw Text]
 B[Raw Text] --> Wikipedia Parser clean_content (HTML Parser) --> C[JSON Format]
-C --> D[AIResearchAssistant Class]
+C --> D[Agent Class]
 D --> D1[Structured Extraction (Pydantic Schema)]
 D --> D2[Store Extracted Articles]
 D --> D3[Function Calling Layer]
@@ -20,7 +20,7 @@ D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 ```
 - **Raw Text Cleaning**：對 HTML/純文字進行初步清理（移除標籤、多餘空格等）。
 - **HTML Parser → JSON Format**：解析 HTML，將結構化資訊（標題、Header、段落等）轉成 JSON/dict。
-- **AIResearchAssistant** Class：核心管理模組，內含：
+- **Agent** Class：核心管理模組，內含：
     - **Structured Extraction** (Pydantic Schema)：利用 Pydantic Schema 驗證與存放文章資料。
     - **Store Extracted Articles**：集中儲存所有已處理文章，便於後續操作。
     - **Function Calling Layer**：根據 LLM 輸入自動決定：
@@ -51,7 +51,7 @@ D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 - [ ] Asynchronous Multiple Scraping
 - [ ] **速率限制（Rate Limiting）**：避免過度請求
 - [ ] 清理函式：`clean_content`（移除非正文、過多空白、code fences 等）。  
-- [ ] `AIResearchAssistant`：錯誤處理與輔助方法完善（如 `remove_article`、`update_article`）。  
+- [ ] `Agent`：錯誤處理與輔助方法完善（如 `remove_article`、`update_article`）。  
 - [ ] `compare_technologies`：API 與 Mock 版本（輸入/輸出 JSON 字串）。  
 - [ ] `trace_evolution`：API 與 Mock 版本（輸入/輸出 JSON 字串）。  
 - [ ] 測試：空資料、找不到標題、category 為空、JSON 格式錯誤等。  
@@ -246,11 +246,11 @@ class Agent:
 
 ### Function Calling Layer (對外介面)
 ```python
-def ask_ai(query: str, assistant: AIResearchAssistant):
+def ask_ai(query: str, assistant: Agent):
     """
     Function Calling 層，AI Assistant 與外部對話的唯一入口。
     - query: 使用者的任務 (ex: "compare_technologies: LLM, RNN")
-    - assistant: 已經擁有 structured articles 的 AIResearchAssistant
+    - assistant: 已經擁有 structured articles 的 Agent
     """
     if query.startswith("compare_technologies"):
         # Example: compare_technologies: LLM, RNN
@@ -329,7 +329,7 @@ def trace_evolution(topic: str, articles_json: List[str]) -> str:
 1. **爬蟲** → 取得 raw HTML / text。  
 2. **清理** → `clean_content`（移除雜訊、保留段落）。  
 3. **HTML Parser** → 擷取標題/段落 → dict。  
-4. **Pydantic** → 驗證 → `Article` 物件 → 存入 `AIResearchAssistant.articles`。  
+4. **Pydantic** → 驗證 → `Article` 物件 → 存入 `Agent.articles`。  
 5. **Function Calling**：
    - 從 Class 取出 `Article`，轉成 **JSON 字串**，作為工具的 **input arguments**。  
    - 呼叫 `compare_technologies` / `trace_evolution`（API 或 Mock）。  
