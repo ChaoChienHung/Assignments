@@ -42,6 +42,7 @@ D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 - 內建 **Markdown → 純文字** 清理功能
 - 支援 **安全 API Key 輸入** 與 **OpenAI client 驗證**
 - 可擴充至 **自動 chunking / LLM-based extraction**
+- **速率限制（Rate Limiting）**：避免過度請求
 
 ---
 
@@ -49,7 +50,6 @@ D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 
 - [ ] HTML Parser：`mock_extract_from_html` 真實實作（BeautifulSoup）。
 - [ ] Asynchronous Multiple Scraping
-- [ ] **速率限制（Rate Limiting）**：避免過度請求
 - [ ] 清理函式：`clean_content`（移除非正文、過多空白、code fences 等）。  
 - [ ] `Agent`：錯誤處理與輔助方法完善（如 `remove_article`、`update_article`）。  
 - [ ] `compare_technologies`：API 與 Mock 版本（輸入/輸出 JSON 字串）。  
