@@ -29,6 +29,99 @@ D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 
 ---
 
+## 📖 Wikipedia WebScraper
+
+這是一個基於 **Python + Crawl4AI + OpenAI API** 的 **非同步 Wikipedia 爬蟲**，可以批量抓取文章內容，並將內容轉換成乾淨的文字，以利後續進行 NLP 或 LLM 知識庫建構。
+
+---
+
+### 🚀 功能特色
+
+- 支援 **多網址非同步爬取**（`asyncio`）
+- **速率限制（Rate Limiting）**：避免過度請求
+- 回傳結構化資訊（標題、字數、連結數量、處理時間）
+- 內建 **Markdown → 純文字** 清理功能
+- 支援 **安全 API Key 輸入** 與 **OpenAI client 驗證**
+- 可擴充至 **自動 chunking / LLM-based extraction**
+
+---
+
+### 📦 安裝需求
+
+#### 請先安裝必要套件：
+
+```bash
+pip install crawl4ai ratelimit beautifulsoup4 markdown openai pandas requests
+```
+
+#### 🛠 使用方式
+1. API Key 設定
+請在執行程式時輸入 API Key，或是預先在環境變數中設定：
+`export OPENAI_API_KEY="your_key_here"`
+
+2. 建立 Scraper 並執行
+```python
+import asyncio
+from scraper import WikipediaScraper  # 假設你把 class 存在 scraper.py
+
+urls = [
+    "https://en.wikipedia.org/wiki/Natural_language_processing",
+    "https://en.wikipedia.org/wiki/Machine_learning"
+]
+
+scraper = WikipediaScraper(base_urls=urls)
+
+results = asyncio.run(scraper.scrape_multiple())
+
+for r in results:
+    print(r["title"], r["markdown_length"], "chars")
+```
+
+#### 📂 回傳結果格式
+
+每篇文章的結果會是 JSON-like dict：
+```bash
+{
+  "title": "Natural language processing",
+  "markdown": "...",
+  "html_length": 15234,
+  "markdown_length": 8921,
+  "links_found": 245,
+  "crawl_time": 1735712456.2381
+}
+```
+
+#### 🧹 清理內容
+你可以使用 clean_content() 將 Markdown 轉換成乾淨的純文字：
+```python
+raw_markdown = results[0]["markdown"]
+clean_text = scraper.clean_content(raw_markdown)
+
+print(clean_text[:500])  # 顯示前 500 字
+```
+#### 🔒 OpenAI Client 建立與測試
+
+此專案內建 `create_secure_openai_client()`，會：
+- 從環境變數讀取 API key
+- 測試是否能正確連線
+- 回傳一個 OpenAI client
+
+範例：
+```python
+from scraper import create_secure_openai_client
+
+client = create_secure_openai_client()
+
+if client:
+    response = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=[{"role": "user", "content": "Hello, world!"}]
+    )
+    print(response.choices[0].message)
+```
+
+---
+
 ## 📦 Data Contracts（Pydantic Schemas）
 
 ### Article Schema
@@ -261,4 +354,10 @@ def trace_evolution(topic: str, articles_json: List[str]) -> str:
 ## 📎 使用建議
 - 內部運算建議以 **dict/Pydantic** 進行；與 LLM 或工具層交互時再轉 **JSON string**。  
 - 保持工具（函式）輸入/輸出嚴格定義，方便測試與替換（API ↔ Mock）。  
-- 避免使用 global state；由 Class 統一管理狀態與資料。  
+- 避免使用 global state；由 Class 統一管理狀態與資料。
+
+🔮 未來擴充建議
+- 資料儲存：將結果存入 SQLite / MongoDB / CSV
+- 自動 Chunking：使用 RegexChunking / SlidingWindowChunking
+- 資訊擷取：搭配 LLMExtractionStrategy 自動生成結構化知識
+- 前端展示：整合成一個小型 Web NotebookLM Demo
