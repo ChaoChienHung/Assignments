@@ -10,19 +10,22 @@
 ```
 flowchart TD
     A[Raw Data (HTML/Plain Text)] --> B[Raw Text Cleaning]
-    B --> C[HTML Parser]
-    C --> D[Structured Extraction (Pydantic Schema)]
-    D --> E[Store Articles in AIResearchAssistant Class]
-    E --> F[Function Calling Layer]
-    F -->|compare_technologies() or trace_evolution()| G[External Tool / Gemini API]
-    F -->|Mock Mode| H[Basic JSON/Dict Extraction + Print Summary]
+    B --> C[HTML Parser → JSON Format]
+    C --> D[AIResearchAssistant Class]
+    D --> D1[Structured Extraction (Pydantic Schema)]
+    D --> D2[Store Extracted Articles]
+    D --> D3[Function Calling Layer]
+    D3 -->|compare_technologies() or trace_evolution()| E[External Tool / Gemini API]
+    D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 ```
-- **Raw Text Cleaning**：預處理 HTML / 純文字資料，移除不必要標籤或格式。  
-- **HTML Parser**：擷取標題、Header、段落，輸出 dict / JSON。  
-- **Structured Extraction (Pydantic)**：將文章整理為結構化資料，確保欄位一致性。  
-- **AIResearchAssistant Class**：集中管理 Articles、對外提供工具呼叫資料來源。  
-- **Function Calling Layer**：LLM 決定是否呼叫外部工具（或進入 Mock 模式）。  
-
+- **Raw Text Cleaning**：對 HTML/純文字進行初步清理（移除標籤、多餘空格等）。
+- **HTML Parser → JSON Format**：解析 HTML，將結構化資訊（標題、Header、段落等）轉成 JSON/dict。
+- **AIResearchAssistant** Class：核心管理模組，內含：
+- **Structured Extraction** (Pydantic Schema)：利用 Pydantic Schema 驗證與存放文章資料。
+- **Store Extracted Articles**：集中儲存所有已處理文章，便於後續操作。
+- **Function Calling Layer**：根據 LLM 輸入自動決定：
+    - **呼叫外部工具**（如 Gemini API）
+    - **或進入 Mock 模式**（以 JSON/dict 輸出並做簡單摘要）。
 ---
 
 ## 📦 Data Contracts（Pydantic Schemas）
