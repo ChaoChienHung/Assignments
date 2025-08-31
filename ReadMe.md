@@ -7,7 +7,7 @@
 
 ## 🏗️ 整體架構與流程
 
-```mermaid
+```
 flowchart TD
     A[Raw Data (HTML/Plain Text)] --> B[Raw Text Cleaning]
     B --> C[HTML Parser]
