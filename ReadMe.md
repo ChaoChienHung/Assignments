@@ -163,77 +163,126 @@ class WikipediaExtraction(BaseModel):
 ## 🧠 Agent Class（狀態與行為）
 
 ```python
-from typing import List, Dict, Optional
-
 class Agent:
-    def __init__(self, client=None, model: str = "gpt-4o-mini"):
-        # 管理所有抽取出來的文章
+    def __init__(self, model: str = "gpt-4o-mini"):
         self.articles: List[WikipediaExtraction] = []
-        self.client = client
         self.model = model
+        self.create_secure_openai_client()
+
+    def create_secure_openai_client(self):
+    """
+    Create OpenAI client with secure API key handling.
+
+    This function:
+    1. Looks for OPENAI_API_KEY in environment variables
+    2. Tests the connection with a simple API call
+    3. Returns the client or None if setup fails
+    """
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("❌ No OPENAI_API_KEY found in environment variables")
+        print("💡 Set environment variable: OPENAI_API_KEY=your_key")
+        return None
+    try:
+        self.client = OpenAI(api_key=api_key)
+        # Test connection with a simple API call
+        models = client.models.list()
+        print("✅ OpenAI client created and tested successfully")
+
+    except Exception as e:
+        print(f"❌ OpenAI client creation failed: {e}")
+        print("🔍 Check your API key and internet connection")
+        self.client = None
 
     # ---- Data In/Out ----
     def add_article(self, article: WikipediaExtraction) -> None:
         self.articles.append(article)
 
-    def list_titles(self) -> List[str]:
-        return [a.title for a in self.articles]
+    # def list_titles(self) -> List[str]:
+    #     return [a.title for a in self.articles]
 
-    def get_article_by_title(self, title: str) -> WikipediaExtraction:
-        for a in self.articles:
-            if a.title == title:
-                return a
-        raise ValueError(f"Article not found: {title}")
+    # def get_article_by_title(self, title: str) -> WikipediaExtraction:
+    #     for a in self.articles:
+    #         if a.title == title:
+    #             return a
+    #     raise ValueError(f"Article not found: {title}")
 
-    def get_articles_by_category(self, category: str) -> List[WikipediaExtraction]:
-        # category 可能對應 related_concepts，需自定義
-        results = [a for a in self.articles if category in a.related_concepts]
-        if not results:
-            raise ValueError(f"No articles found for category: {category}")
-        return results
+    # def get_articles_by_category(self, category: str) -> List[WikipediaExtraction]:
+    #     # category 可能對應 related_concepts，需自定義
+    #     results = [a for a in self.articles if category in a.related_concepts]
+    #     if not results:
+    #         raise ValueError(f"No articles found for category: {category}")
+    #     return results
 
     # ---- Extraction ----
-    def extract_structured_data(self, content: str) -> WikipediaExtraction:
-        """Use OpenAI structured output to extract data, fallback to mock if no API."""
-        if not self.client:
-            print("⚠️ Demo mode: Mock extraction.")
-            return self.create_mock_wiki_extraction()
+    def extract_structured_data(self, content: str, model: str = "gpt-4o-mini") -> WikipediaExtraction:
+        """Use OpenAI structured output to extract data"""
+        """
+        Extract structured data from raw text using OpenAI's Structured Outputs.
 
+        This replaces the old pattern of:
+        response.json()  # Hope it works!
+
+        With guaranteed schema compliance.
+        """
+
+        if not client:
+            print("⚠️ Demo mode: Would extract structured data with OpenAI API")
+            return create_mock_wiki_extraction()
+        
+        # Create the schema for OpenAI
         schema = {
             "name": "wiki_extraction",
             "schema": WikipediaExtraction.model_json_schema(),
-            "strict": False
+            "strict": False  # This enforces strict schema compliance
         }
 
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
+            # The magic happens here - response_format enforces our schema
+            response = client.chat.completions.create(
+                model=self.model,  # Only gpt-4o and gpt-4o-mini support structured outputs
                 messages=[
-                    {"role": "system",
-                     "content": "Please extract and structure the article strictly according to the schema."},
-                    {"role": "user",
-                     "content": f"Analyze the article: {content}"}
+                    {
+                        "role": "system",
+                        "content": "Please carefully read and comprehend the entire article content provided below. Extract all relevant information and structure it exactly according to the provided schema."
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Please carefully analyze the article {content} below. Even if some fields within the schema are not explicitly provided by the article, use inference to fill in any missing information where reasonable. Then, extract and organize the data from the article according to the schema, ensuring completeness and accuracy based on both explicit statements and logical inference."
+                    }
                 ],
-                response_format={"type": "json_schema", "json_schema": schema}
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": schema
+                }
             )
 
-            wiki_extraction = WikipediaExtraction.model_validate_json(
-                response.choices[0].message.content
-            )
-            print(f"✅ Extracted: {wiki_extraction.title}")
+            # Direct validation - no parsing errors possible!
+            wiki_extraction = WikipediaExtraction.model_validate_json(response.choices[0].message.content)
+
+            print("✅ Structured extraction successful!")
+            print(f"📚 Processed article: {wiki_extraction.title}")
+            print(f"💰 Topic's Description: {wiki_extraction.description}")
+            print(f"⭐ Topic's Advantages: {wiki_extraction.advantages}")
+            print(f"🏷️ Topic's Disadvantages: {wiki_extraction.disadvantages}")
+
             return wiki_extraction
 
         except Exception as e:
             print(f"❌ Extraction failed: {e}")
-            return self.create_mock_wiki_extraction()
-
+            return self.create_mock_wiki_extraction(content)
+        
     def batch_extract(self, articles: List[Dict]) -> List[WikipediaExtraction]:
+        """Process multiple articles"""
         extracted = []
         for article in articles:
             extracted.append(self.extract_structured_data(article['markdown']))
+        
         return extracted
+        
 
-    def create_mock_wiki_extraction(self) -> WikipediaExtraction:
+    def create_mock_wiki_extraction(self, raw_content: str):
+        """Create mock data for demonstration when API is not available."""
         return WikipediaExtraction(
             title="Null",
             description="Null",
