@@ -295,7 +295,7 @@ class Agent:
 
 ### Function Calling Layer (對外介面)
 ```python
-def ask_ai(self, query: str):
+def ask_ai(self, query: str, assistant: Agent):
     """
     Function Calling 層，AI Assistant 與外部對話的唯一入口。
     - query: 使用者的任務 (ex: "compare_technologies: LLM, RNN")
