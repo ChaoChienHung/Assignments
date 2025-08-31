@@ -9,14 +9,14 @@
 
 ```
 flowchart TD
-    A[Raw Data (HTML/Plain Text)] --> B[Raw Text Cleaning]
-    B --> C[HTML Parser → JSON Format]
-    C --> D[AIResearchAssistant Class]
-        D --> D1[Structured Extraction (Pydantic Schema)]
-        D --> D2[Store Extracted Articles]
-        D --> D3[Function Calling Layer]
-            D3 -->|compare_technologies() or trace_evolution()| E[External Tool / Gemini API]
-            D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
+A[Raw Data (HTML/Plain Text)] --> B[Raw Text Cleaning]
+B --> C[HTML Parser → JSON Format]
+C --> D[AIResearchAssistant Class]
+D --> D1[Structured Extraction (Pydantic Schema)]
+D --> D2[Store Extracted Articles]
+D --> D3[Function Calling Layer]
+D3 -->|compare_technologies() or trace_evolution()| E[External Tool / Gemini API]
+D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 ```
 - **Raw Text Cleaning**：對 HTML/純文字進行初步清理（移除標籤、多餘空格等）。
 - **HTML Parser → JSON Format**：解析 HTML，將結構化資訊（標題、Header、段落等）轉成 JSON/dict。
@@ -26,6 +26,20 @@ flowchart TD
     - **Function Calling Layer**：根據 LLM 輸入自動決定：
         - **呼叫外部工具**（如 Gemini API）
         - **或進入 Mock 模式**（以 JSON/dict 輸出並做簡單摘要）。
+
+### Schema
+```python
+from pydantic import BaseModel, Field
+from typing import List
+
+class WikipediaExtraction(BaseModel):
+    title: str = Field(description="Article's Title")
+    description: str = Field(description="Article's Summary or Description or Overview")
+    advantages: List[str] = Field(description="The advantages of the topic mentioned in the article")
+    disadvantages: List[str] = Field(description="Known challenges or limitations")
+    related_concepts: List[str] = Field(description="Related technology, see also")
+    notable_methods: List[str] = Field(description="Notable methods, models, or techniques in this area")
+```
 ---
 
 ## 📦 Data Contracts（Pydantic Schemas）
