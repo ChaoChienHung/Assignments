@@ -48,6 +48,7 @@ D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 
 ## ✅ 待完成清單（Checklist）
 
+- [ ] WikipediaExtraction Error Case Handling
 - [ ] HTML Parser：`mock_extract_from_html` 真實實作（BeautifulSoup）。
 - [ ] Asynchronous Multiple Scraping
 - [ ] 清理函式：`clean_content`（移除非正文、過多空白、code fences 等）。  
