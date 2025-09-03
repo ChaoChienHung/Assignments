@@ -50,16 +50,10 @@ D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 
 - [ ] WikipediaExtraction Error Case Handling
 - [ ] Word Frequencies
-- [ ] WikipediaAgent `batch_extract`
-- [ ] Asynchronous Multiple Scraping
-- [ ] 清理函式：`clean_content`（移除非正文、過多空白、code fences 等）。  
-- [ ] `Agent`：錯誤處理與輔助方法完善（如 `remove_article`、`update_article`）。  
-- [ ] `compare_technologies`：API 與 Mock 版本（輸入/輸出 JSON 字串）。  
-- [ ] `trace_evolution`：API 與 Mock 版本（輸入/輸出 JSON 字串）。  
+- [ ] `compare_technologies`：Gemini API 版本（輸入/輸出 JSON 字串）。  
+- [ ] `trace_evolution`：API 版本（輸入/輸出 JSON 字串）。  
 - [ ] 測試：空資料、找不到標題、category 為空、JSON 格式錯誤等。  
 - [ ] 文件化：在 README 中加入使用示例與 CLI/Notebook 範例。
-- [ ] `create_mock_wiki_extraction`
-- [ ] `batch_extract`
 
 ### 📦 安裝需求
 
