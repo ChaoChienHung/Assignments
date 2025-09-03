@@ -49,6 +49,7 @@ D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 ## ✅ 待完成清單（Checklist）
 
 - [ ] WikipediaExtraction Error Case Handling
+- [ ] Word Frequencies
 - [ ] WikipediaAgent `batch_extract`
 - [ ] Asynchronous Multiple Scraping
 - [ ] 清理函式：`clean_content`（移除非正文、過多空白、code fences 等）。  
