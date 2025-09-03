@@ -49,8 +49,6 @@ D3 -->|Mock Mode| F[Basic JSON/Dict Extraction + Print Summary]
 ## ✅ 待完成清單（Checklist）
 
 - [ ] WikipediaExtraction Error Case Handling
-- [ ] `compare_technologies`：Gemini API 版本（輸入/輸出 JSON 字串）。  
-- [ ] `trace_evolution`：API 版本（輸入/輸出 JSON 字串）。  
 - [ ] 測試：空資料、找不到標題、category 為空、JSON 格式錯誤等。  
 - [ ] 文件化：在 README 中加入使用示例與 CLI/Notebook 範例。
 
